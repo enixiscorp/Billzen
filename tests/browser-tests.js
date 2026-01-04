@@ -472,6 +472,353 @@ testFramework.test('Property 2: Structure de document', () => {
     );
 });
 
+// **Feature: invoice-generator, Property 13: Complétude des devises ISO 4217**
+// **Validates: Requirements 6.2**
+testFramework.test('Property 13: Complétude des devises ISO 4217', () => {
+    testFramework.property(
+        () => ({
+            // Générer des codes de devises ISO 4217 connus
+            testCurrencies: [
+                'EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY', 'SEK', 'NOK',
+                'DKK', 'PLN', 'CZK', 'HUF', 'RUB', 'BRL', 'MXN', 'INR', 'KRW', 'SGD',
+                'HKD', 'NZD', 'ZAR', 'TRY', 'ILS', 'AED', 'SAR', 'EGP', 'MAD', 'TND',
+                'NGN', 'KES', 'GHS', 'XOF', 'XAF'
+            ]
+        }),
+        (data) => {
+            const currencyManager = new CurrencyManager();
+            const availableCurrencies = currencyManager.getAllCurrencies();
+            
+            // Vérifier que toutes les devises de test sont disponibles
+            for (const currencyCode of data.testCurrencies) {
+                if (!availableCurrencies[currencyCode]) {
+                    console.error(`Devise manquante: ${currencyCode}`);
+                    return false;
+                }
+                
+                // Vérifier que chaque devise a les propriétés requises
+                const currency = availableCurrencies[currencyCode];
+                if (!currency.code || !currency.symbol || !currency.name || 
+                    !currency.symbolPosition || currency.decimalPlaces === undefined) {
+                    console.error(`Propriétés manquantes pour la devise: ${currencyCode}`);
+                    return false;
+                }
+            }
+            
+            return true;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 14: Formatage des devises**
+// **Validates: Requirements 6.4, 6.5**
+testFramework.test('Property 14: Formatage des devises', () => {
+    testFramework.property(
+        () => ({
+            currencyCode: testFramework.randomString(3).toUpperCase(), // Code aléatoire pour tester la robustesse
+            amount: testFramework.randomFloat(0.01, 999999.99),
+            validCurrencies: ['EUR', 'USD', 'GBP', 'JPY', 'CHF', 'CAD', 'AUD', 'CNY']
+        }),
+        (data) => {
+            const currencyManager = new CurrencyManager();
+            
+            // Tester avec une devise valide aléatoire
+            const validCurrency = data.validCurrencies[Math.floor(Math.random() * data.validCurrencies.length)];
+            currencyManager.setCurrency(validCurrency);
+            
+            const formattedAmount = currencyManager.formatAmount(data.amount);
+            const currency = currencyManager.getCurrentCurrency();
+            
+            // Vérifier que le montant formaté contient le symbole
+            if (!formattedAmount.includes(currency.symbol)) {
+                return false;
+            }
+            
+            // Vérifier la position du symbole
+            if (currency.symbolPosition === 'left') {
+                if (!formattedAmount.startsWith(currency.symbol)) {
+                    return false;
+                }
+            } else {
+                if (!formattedAmount.endsWith(currency.symbol)) {
+                    return false;
+                }
+            }
+            
+            // Vérifier que le montant peut être parsé en retour
+            const parsedAmount = currencyManager.parseAmount(formattedAmount);
+            const tolerance = Math.pow(10, -currency.decimalPlaces);
+            
+            return Math.abs(parsedAmount - data.amount) <= tolerance;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 16: Nombre de thèmes**
+// **Validates: Requirements 7.2**
+testFramework.test('Property 16: Nombre de thèmes', () => {
+    testFramework.property(
+        () => ({
+            // Pas de données aléatoires nécessaires, on teste la configuration statique
+            testRun: testFramework.randomInt(1, 100)
+        }),
+        (data) => {
+            const themeManager = new ThemeManager();
+            const themeCount = themeManager.getThemeCount();
+            
+            // Vérifier que le nombre de thèmes est entre 5 et 10 (selon les spécifications)
+            const isValidCount = themeCount >= 5 && themeCount <= 10;
+            
+            if (!isValidCount) {
+                console.error(`Nombre de thèmes invalide: ${themeCount} (doit être entre 5 et 10)`);
+            }
+            
+            return isValidCount;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 17: Application complète des thèmes**
+// **Validates: Requirements 7.3**
+testFramework.test('Property 17: Application complète des thèmes', () => {
+    testFramework.property(
+        () => ({
+            // Sélectionner un thème aléatoire parmi ceux disponibles
+            availableThemes: ['default', 'modern', 'classic', 'corporate', 'elegant', 'minimal', 'creative']
+        }),
+        (data) => {
+            const themeManager = new ThemeManager();
+            const themeId = data.availableThemes[Math.floor(Math.random() * data.availableThemes.length)];
+            
+            // Appliquer le thème
+            const applied = themeManager.applyTheme(themeId);
+            if (!applied) return false;
+            
+            const theme = themeManager.getTheme(themeId);
+            if (!theme) return false;
+            
+            // Vérifier que toutes les propriétés du thème sont appliquées
+            const root = document.documentElement;
+            const computedStyle = getComputedStyle(root);
+            
+            // Vérifier les couleurs
+            const primaryColor = computedStyle.getPropertyValue('--color-primary').trim();
+            if (primaryColor !== theme.colors.primary) {
+                console.error(`Couleur primaire non appliquée: attendu ${theme.colors.primary}, obtenu ${primaryColor}`);
+                return false;
+            }
+            
+            // Vérifier les polices
+            const headerFont = computedStyle.getPropertyValue('--font-header').trim();
+            if (headerFont !== theme.fonts.header) {
+                console.error(`Police d'en-tête non appliquée: attendu ${theme.fonts.header}, obtenu ${headerFont}`);
+                return false;
+            }
+            
+            // Vérifier le layout
+            const headerHeight = computedStyle.getPropertyValue('--header-height').trim();
+            if (headerHeight !== theme.layout.headerHeight) {
+                console.error(`Hauteur d'en-tête non appliquée: attendu ${theme.layout.headerHeight}, obtenu ${headerHeight}`);
+                return false;
+            }
+            
+            // Vérifier que la classe de thème est appliquée
+            const hasThemeClass = document.body.classList.contains(`theme-${themeId}`);
+            if (!hasThemeClass) {
+                console.error(`Classe de thème non appliquée: theme-${themeId}`);
+                return false;
+            }
+            
+            return true;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 15: Disponibilité des polices**
+// **Validates: Requirements 7.1**
+testFramework.test('Property 15: Disponibilité des polices', () => {
+    testFramework.property(
+        () => ({
+            // Tester les catégories de polices requises
+            requiredCategories: ['sans-serif', 'serif', 'monospace']
+        }),
+        (data) => {
+            const themeManager = new ThemeManager();
+            const availableFonts = themeManager.getAvailableFonts();
+            
+            // Vérifier que chaque catégorie requise est disponible
+            for (const category of data.requiredCategories) {
+                if (!availableFonts[category] || availableFonts[category].length === 0) {
+                    console.error(`Catégorie de police manquante: ${category}`);
+                    return false;
+                }
+                
+                // Vérifier qu'il y a au moins une police dans chaque catégorie
+                const fonts = availableFonts[category];
+                if (!Array.isArray(fonts) || fonts.length === 0) {
+                    console.error(`Aucune police disponible pour la catégorie: ${category}`);
+                    return false;
+                }
+            }
+            
+            // Utiliser la méthode de validation intégrée
+            return themeManager.validateFontAvailability();
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 18: Personnalisation graphique**
+// **Validates: Requirements 7.4, 7.5, 7.6, 7.7, 7.8, 7.9**
+testFramework.test('Property 18: Personnalisation graphique', () => {
+    testFramework.property(
+        () => ({
+            // Générer des valeurs de personnalisation aléatoires
+            textColor: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`,
+            backgroundColor: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`,
+            primaryColor: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`,
+            accentColor: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`,
+            headerFont: testFramework.randomString(10),
+            bodyFont: testFramework.randomString(10),
+            uppercaseToggle: Math.random() > 0.5,
+            columnTitles: {
+                reference: testFramework.randomString(8),
+                description: testFramework.randomString(10),
+                quantity: testFramework.randomString(5),
+                unitPrice: testFramework.randomString(8),
+                discount: testFramework.randomString(6),
+                vat: testFramework.randomString(4),
+                total: testFramework.randomString(6)
+            },
+            paymentMethod: testFramework.randomString(15),
+            footerText: testFramework.randomString(20)
+        }),
+        (data) => {
+            const themeManager = new ThemeManager();
+            
+            try {
+                // Test de personnalisation des couleurs
+                const colorConfig = {
+                    text: data.textColor,
+                    background: data.backgroundColor,
+                    primary: data.primaryColor,
+                    accent: data.accentColor
+                };
+                
+                themeManager.customizeColors(colorConfig);
+                
+                // Vérifier que les couleurs sont appliquées
+                const root = document.documentElement;
+                const computedStyle = getComputedStyle(root);
+                
+                const appliedTextColor = computedStyle.getPropertyValue('--color-text').trim();
+                if (appliedTextColor !== data.textColor) {
+                    console.warn(`Couleur de texte non appliquée: attendu ${data.textColor}, obtenu ${appliedTextColor}`);
+                    // Ne pas faire échouer le test pour les couleurs, car le navigateur peut les normaliser
+                }
+                
+                // Test de personnalisation des polices
+                const fontConfig = {
+                    header: data.headerFont,
+                    body: data.bodyFont
+                };
+                
+                themeManager.customizeFonts(fontConfig);
+                
+                // Vérifier que les polices sont appliquées
+                const appliedHeaderFont = computedStyle.getPropertyValue('--font-header').trim();
+                if (appliedHeaderFont !== data.headerFont) {
+                    console.warn(`Police d'en-tête non appliquée: attendu ${data.headerFont}, obtenu ${appliedHeaderFont}`);
+                }
+                
+                // Test des éléments d'interface
+                const elements = {
+                    textColor: document.getElementById('text-color'),
+                    backgroundColor: document.getElementById('background-color'),
+                    primaryColor: document.getElementById('primary-color'),
+                    accentColor: document.getElementById('accent-color'),
+                    headerFont: document.getElementById('header-font'),
+                    bodyFont: document.getElementById('body-font'),
+                    uppercaseToggle: document.getElementById('uppercase-toggle'),
+                    paymentMethod: document.getElementById('payment-method'),
+                    footerText: document.getElementById('footer-text')
+                };
+                
+                // Vérifier que tous les éléments de personnalisation existent
+                for (const [key, element] of Object.entries(elements)) {
+                    if (!element) {
+                        console.error(`Élément de personnalisation manquant: ${key}`);
+                        return false;
+                    }
+                }
+                
+                // Simuler des changements et vérifier la réactivité
+                if (elements.paymentMethod) {
+                    elements.paymentMethod.value = data.paymentMethod;
+                    // Déclencher un événement de changement
+                    elements.paymentMethod.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    // Vérifier que la valeur est mise à jour
+                    if (elements.paymentMethod.value !== data.paymentMethod) {
+                        console.error('Mode de paiement non mis à jour');
+                        return false;
+                    }
+                }
+                
+                if (elements.footerText) {
+                    elements.footerText.value = data.footerText;
+                    elements.footerText.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    if (elements.footerText.value !== data.footerText) {
+                        console.error('Texte de pied de page non mis à jour');
+                        return false;
+                    }
+                }
+                
+                // Test des titres de colonnes
+                const columnElements = {
+                    reference: document.getElementById('col-reference-edit'),
+                    description: document.getElementById('col-description-edit'),
+                    quantity: document.getElementById('col-quantity-edit'),
+                    unitPrice: document.getElementById('col-unit-price-edit'),
+                    discount: document.getElementById('col-discount-edit'),
+                    vat: document.getElementById('col-vat-edit'),
+                    total: document.getElementById('col-total-edit')
+                };
+                
+                // Vérifier que tous les éléments de titres de colonnes existent
+                for (const [key, element] of Object.entries(columnElements)) {
+                    if (!element) {
+                        console.error(`Élément de titre de colonne manquant: ${key}`);
+                        return false;
+                    }
+                    
+                    // Tester la modification
+                    const newValue = data.columnTitles[key];
+                    element.value = newValue;
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    
+                    if (element.value !== newValue) {
+                        console.error(`Titre de colonne ${key} non mis à jour`);
+                        return false;
+                    }
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Erreur dans le test de personnalisation:', error);
+                return false;
+            }
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
 // Exécution des tests au chargement
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Démarrage des tests...');

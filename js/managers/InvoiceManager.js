@@ -17,6 +17,123 @@ class InvoiceManager {
     }
     
     /**
+     * Gère l'upload du logo de l'entreprise
+     * @param {File} logoFile - Fichier image du logo
+     * @returns {Promise<boolean>} True si l'upload a réussi
+     */
+    async uploadLogo(logoFile) {
+        try {
+            // Validation du fichier
+            if (!this.validateLogoFile(logoFile)) {
+                throw new Error('Fichier logo invalide');
+            }
+            
+            // Convertir le fichier en Data URL pour stockage local
+            const logoDataUrl = await this.fileToDataUrl(logoFile);
+            
+            // Mettre à jour l'état avec le logo
+            updateState('invoice.company.logo', {
+                file: logoFile,
+                dataUrl: logoDataUrl,
+                name: logoFile.name,
+                size: logoFile.size,
+                type: logoFile.type
+            });
+            
+            // Mettre à jour l'affichage du logo
+            this.updateLogoDisplay(logoDataUrl);
+            
+            return true;
+        } catch (error) {
+            console.error('Erreur lors de l\'upload du logo:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Valide le fichier logo
+     * @param {File} file - Fichier à valider
+     * @returns {boolean} True si le fichier est valide
+     */
+    validateLogoFile(file) {
+        // Vérifier que c'est bien un fichier
+        if (!file || !(file instanceof File)) {
+            return false;
+        }
+        
+        // Vérifier le type MIME
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        if (!validTypes.includes(file.type)) {
+            return false;
+        }
+        
+        // Vérifier la taille (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Convertit un fichier en Data URL
+     * @param {File} file - Fichier à convertir
+     * @returns {Promise<string>} Data URL du fichier
+     */
+    fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (event) => {
+                resolve(event.target.result);
+            };
+            
+            reader.onerror = (error) => {
+                reject(error);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    /**
+     * Met à jour l'affichage du logo dans la prévisualisation
+     * @param {string} logoDataUrl - Data URL du logo
+     */
+    updateLogoDisplay(logoDataUrl) {
+        const logoDisplay = document.getElementById('company-logo-display');
+        if (logoDisplay) {
+            logoDisplay.style.backgroundImage = `url(${logoDataUrl})`;
+            logoDisplay.style.backgroundSize = 'contain';
+            logoDisplay.style.backgroundRepeat = 'no-repeat';
+            logoDisplay.style.backgroundPosition = 'center';
+            logoDisplay.textContent = ''; // Supprimer le texte placeholder
+        }
+    }
+    
+    /**
+     * Supprime le logo
+     */
+    removeLogo() {
+        updateState('invoice.company.logo', null);
+        
+        const logoDisplay = document.getElementById('company-logo-display');
+        if (logoDisplay) {
+            logoDisplay.style.backgroundImage = '';
+            logoDisplay.textContent = 'Logo';
+        }
+    }
+    
+    /**
+     * Obtient les informations du logo actuel
+     * @returns {Object|null} Informations du logo ou null
+     */
+    getCurrentLogo() {
+        return this.state.invoice.company.logo || null;
+    }
+    
+    /**
      * Ajoute un article à la facture
      * @param {Object} item - Article à ajouter
      */

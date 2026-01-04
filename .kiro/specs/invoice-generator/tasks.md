@@ -88,54 +88,54 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
     - **Propriété 2: Structure de document**
     - **Valide: Exigences 1.2**
 
-- [-] 6. Implémentation de la gestion des devises
-  - [-] 6.1 Créer le gestionnaire de devises (currency.js)
+- [x] 6. Implémentation de la gestion des devises
+  - [x] 6.1 Créer le gestionnaire de devises (currency.js)
     - Implémenter la liste complète des devises ISO 4217
     - Créer les fonctions de formatage avec position du symbole
     - Définir EUR comme devise par défaut
     - _Exigences: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ] 6.2 Tests de propriété pour la complétude des devises
+  - [x] 6.2 Tests de propriété pour la complétude des devises
     - **Propriété 13: Complétude des devises ISO 4217**
     - **Valide: Exigences 6.2**
 
-  - [ ] 6.3 Tests de propriété pour le formatage des devises
+  - [x] 6.3 Tests de propriété pour le formatage des devises
     - **Propriété 14: Formatage des devises**
     - **Valide: Exigences 6.4, 6.5**
 
-- [ ] 7. Implémentation du système de thèmes
-  - [ ] 7.1 Créer le gestionnaire de thèmes (themes.js)
+- [x] 7. Implémentation du système de thèmes
+  - [x] 7.1 Créer le gestionnaire de thèmes (themes.js)
     - Implémenter 5-10 thèmes professionnels prédéfinis
     - Créer les fonctions d'application de thèmes
     - Intégrer la bibliothèque de polices professionnelles
     - _Exigences: 7.1, 7.2, 7.3_
 
-  - [ ] 7.2 Tests de propriété pour le nombre de thèmes
+  - [x] 7.2 Tests de propriété pour le nombre de thèmes
     - **Propriété 16: Nombre de thèmes**
     - **Valide: Exigences 7.2**
 
-  - [ ] 7.3 Tests de propriété pour l'application des thèmes
+  - [x] 7.3 Tests de propriété pour l'application des thèmes
     - **Propriété 17: Application complète des thèmes**
     - **Valide: Exigences 7.3**
 
-  - [ ] 7.4 Tests de propriété pour la disponibilité des polices
+  - [x] 7.4 Tests de propriété pour la disponibilité des polices
     - **Propriété 15: Disponibilité des polices**
     - **Valide: Exigences 7.1**
 
-- [ ] 8. Implémentation de la personnalisation avancée
-  - [ ] 8.1 Créer les contrôles de personnalisation
+- [x] 8. Implémentation de la personnalisation avancée
+  - [x] 8.1 Créer les contrôles de personnalisation
     - Implémenter les sélecteurs de couleurs (texte, fond)
     - Créer le toggle majuscules automatiques
     - Permettre l'édition des titres de colonnes et pied de page
     - Ajouter la saisie du mode de paiement
     - _Exigences: 7.4, 7.5, 7.6, 7.7, 7.8, 7.9_
 
-  - [ ] 8.2 Tests de propriété pour la personnalisation graphique
+  - [x] 8.2 Tests de propriété pour la personnalisation graphique
     - **Propriété 18: Personnalisation graphique**
     - **Valide: Exigences 7.4, 7.5, 7.6, 7.7, 7.8, 7.9**
 
-- [ ] 9. Implémentation de la gestion des fichiers
-  - [ ] 9.1 Créer la fonctionnalité d'upload de logo
+- [-] 9. Implémentation de la gestion des fichiers
+  - [-] 9.1 Créer la fonctionnalité d'upload de logo
     - Implémenter l'upload de fichiers image avec validation
     - Créer la prévisualisation du logo
     - _Exigences: 2.2_
