@@ -90,4 +90,21 @@ test('ItemCalculator - Tests de propriétés', async (t) => {
             }
         ));
     });
+    
+    // **Feature: invoice-generator, Property 7: Calcul automatique des articles**
+    // **Validates: Requirements 3.7**
+    await t.test('Property 7: Calcul automatique des articles', () => {
+        fc.assert(fc.property(
+            fc.float({ min: 1, max: 1000, noNaN: true }), // quantity
+            fc.float({ min: 0.01, max: 10000, noNaN: true }), // unitPrice
+            fc.float({ min: 0, max: 100, noNaN: true }), // discount
+            fc.float({ min: 0, max: 50, noNaN: true }), // vatRate
+            (quantity, unitPrice, discount, vatRate) => {
+                const calculatedTotal = ItemCalculator.calculateLineTotal(quantity, unitPrice, discount, vatRate);
+                const expectedTotal = (quantity * unitPrice * (1 - discount/100)) * (1 + vatRate/100);
+                
+                return Math.abs(calculatedTotal - expectedTotal) < 0.01;
+            }
+        ));
+    });
 });

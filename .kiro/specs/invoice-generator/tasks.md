@@ -35,38 +35,38 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
     - **Propriété 8: Validation des prestations horaires**
     - **Valide: Exigences 4.1, 4.2, 4.3**
 
-- [-] 3. Implémentation des calculateurs
-  - [ ] 3.1 Créer le calculateur d'articles (ItemCalculator)
+- [x] 3. Implémentation des calculateurs
+  - [x] 3.1 Créer le calculateur d'articles (ItemCalculator)
     - Implémenter calculateLineTotal avec gestion quantité, prix, remise, TVA
     - Implémenter calculateSubtotal, calculateTotalDiscount, calculateTotalVAT
     - _Exigences: 3.7, 5.1, 5.2, 5.3_
 
-  - [ ] 3.2 Tests de propriété pour les calculs d'articles
+  - [x] 3.2 Tests de propriété pour les calculs d'articles
     - **Propriété 7: Calcul automatique des articles**
     - **Valide: Exigences 3.7**
 
-  - [ ] 3.3 Créer le calculateur horaire (HourlyCalculator)
+  - [x] 3.3 Créer le calculateur horaire (HourlyCalculator)
     - Implémenter calculateHourlyTotal et calculateHourlySubtotal
     - _Exigences: 4.4_
 
-  - [ ] 3.4 Tests de propriété pour les calculs horaires
+  - [x] 3.4 Tests de propriété pour les calculs horaires
     - **Propriété 9: Calcul automatique des prestations horaires**
     - **Valide: Exigences 4.4**
 
-  - [ ] 3.5 Créer le calculateur de totaux (TotalCalculator)
+  - [x] 3.5 Créer le calculateur de totaux (TotalCalculator)
     - Implémenter le calcul du total TTC final
     - Intégrer articles et prestations horaires
     - _Exigences: 5.4, 4.5_
 
-  - [ ] 3.6 Tests de propriété pour les totaux cohérents
+  - [x] 3.6 Tests de propriété pour les totaux cohérents
     - **Propriété 11: Calculs de totaux cohérents**
     - **Valide: Exigences 5.1, 5.2, 5.3, 5.4**
 
-  - [ ] 3.7 Tests de propriété pour le mélange d'éléments
+  - [x] 3.7 Tests de propriété pour le mélange d'éléments
     - **Propriété 10: Mélange d'éléments de facturation**
     - **Valide: Exigences 4.5**
 
-- [ ] 4. Point de contrôle - Calculs de base
+- [x] 4. Point de contrôle - Calculs de base
   - S'assurer que tous les tests de calculs passent, demander à l'utilisateur si des questions se posent.
 
 - [ ] 5. Implémentation de l'interface utilisateur de base

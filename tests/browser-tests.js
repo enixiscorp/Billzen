@@ -96,6 +96,28 @@ testFramework.test('Property - ItemCalculator toujours positif', () => {
     );
 });
 
+// **Feature: invoice-generator, Property 7: Calcul automatique des articles**
+// **Validates: Requirements 3.7**
+testFramework.test('Property 7: Calcul automatique des articles', () => {
+    testFramework.property(
+        () => ({
+            quantity: testFramework.randomFloat(1, 1000),
+            unitPrice: testFramework.randomFloat(0.01, 10000),
+            discount: testFramework.randomFloat(0, 100),
+            vatRate: testFramework.randomFloat(0, 50)
+        }),
+        (data) => {
+            const calculatedTotal = ItemCalculator.calculateLineTotal(
+                data.quantity, data.unitPrice, data.discount, data.vatRate
+            );
+            const expectedTotal = (data.quantity * data.unitPrice * (1 - data.discount/100)) * (1 + data.vatRate/100);
+            
+            return Math.abs(calculatedTotal - expectedTotal) < 0.01;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
 // **Feature: invoice-generator, Property 3: Informations d'entreprise complètes**
 // **Validates: Requirements 2.1, 2.3, 2.4, 2.5**
 testFramework.test('Property 3: Informations d\'entreprise complètes', () => {
@@ -210,6 +232,42 @@ testFramework.test('Property - HourlyCalculator multiplication correcte', () => 
     );
 });
 
+// **Feature: invoice-generator, Property 9: Calcul automatique des prestations horaires**
+// **Validates: Requirements 4.4**
+testFramework.test('Property 9: Calcul automatique des prestations horaires', () => {
+    testFramework.property(
+        () => ({
+            hours: testFramework.randomFloat(0.1, 1000),
+            hourlyRate: testFramework.randomFloat(1, 1000)
+        }),
+        (data) => {
+            const calculatedTotal = HourlyCalculator.calculateHourlyTotal(data.hours, data.hourlyRate);
+            const expectedTotal = data.hours * data.hourlyRate;
+            
+            return Math.abs(calculatedTotal - expectedTotal) < 0.01;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 9: Calcul automatique des prestations horaires**
+// **Validates: Requirements 4.4**
+testFramework.test('Property 9: Calcul automatique des prestations horaires', () => {
+    testFramework.property(
+        () => ({
+            hours: testFramework.randomFloat(0.1, 1000),
+            hourlyRate: testFramework.randomFloat(1, 1000)
+        }),
+        (data) => {
+            const calculatedTotal = HourlyCalculator.calculateHourlyTotal(data.hours, data.hourlyRate);
+            const expectedTotal = data.hours * data.hourlyRate;
+            
+            return Math.abs(calculatedTotal - expectedTotal) < 0.01;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
 testFramework.test('Property - generateId génère des IDs uniques', () => {
     const ids = new Set();
     for (let i = 0; i < 100; i++) {
@@ -217,6 +275,114 @@ testFramework.test('Property - generateId génère des IDs uniques', () => {
         testFramework.assert(!ids.has(id), `ID dupliqué trouvé: ${id}`);
         ids.add(id);
     }
+});
+
+// Tests pour TotalCalculator
+testFramework.test('TotalCalculator - calculateFinalTotals basique', () => {
+    const items = [
+        { quantity: 2, unitPrice: 10, discount: 0, vatRate: 20 }
+    ];
+    const hourlyItems = [
+        { hours: 8, hourlyRate: 50 }
+    ];
+    
+    const totals = TotalCalculator.calculateFinalTotals(items, hourlyItems);
+    
+    // Vérifications de base
+    testFramework.assert(totals.subtotalHT > 0, 'Sous-total HT doit être positif');
+    testFramework.assert(totals.totalTTC > totals.subtotalHT, 'Total TTC doit être supérieur au sous-total HT');
+});
+
+// **Feature: invoice-generator, Property 11: Calculs de totaux cohérents**
+// **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
+testFramework.test('Property 11: Calculs de totaux cohérents', () => {
+    testFramework.property(
+        () => ({
+            items: Array.from({ length: testFramework.randomInt(1, 5) }, () => ({
+                quantity: testFramework.randomFloat(1, 10),
+                unitPrice: testFramework.randomFloat(1, 100),
+                discount: testFramework.randomFloat(0, 50),
+                vatRate: testFramework.randomFloat(0, 25)
+            })),
+            hourlyItems: Array.from({ length: testFramework.randomInt(1, 3) }, () => ({
+                hours: testFramework.randomFloat(1, 40),
+                hourlyRate: testFramework.randomFloat(10, 200)
+            }))
+        }),
+        (data) => {
+            const totals = TotalCalculator.calculateFinalTotals(data.items, data.hourlyItems);
+            
+            // Calculer manuellement les totaux attendus
+            const itemsSubtotalHT = data.items.reduce((total, item) => {
+                const subtotal = item.quantity * item.unitPrice;
+                const discountAmount = subtotal * (item.discount / 100);
+                return total + (subtotal - discountAmount);
+            }, 0);
+            
+            const hourlySubtotal = data.hourlyItems.reduce((total, item) => {
+                return total + (item.hours * item.hourlyRate);
+            }, 0);
+            
+            const expectedSubtotalHT = itemsSubtotalHT + hourlySubtotal;
+            
+            const expectedTotalVAT = data.items.reduce((total, item) => {
+                const subtotal = item.quantity * item.unitPrice;
+                const discountAmount = subtotal * (item.discount / 100);
+                const subtotalAfterDiscount = subtotal - discountAmount;
+                const vatAmount = subtotalAfterDiscount * (item.vatRate / 100);
+                return total + vatAmount;
+            }, 0);
+            
+            const expectedTotalTTC = expectedSubtotalHT + expectedTotalVAT;
+            
+            // Vérifier la cohérence des calculs
+            return (
+                Math.abs(totals.subtotalHT - expectedSubtotalHT) < 0.01 &&
+                Math.abs(totals.totalVAT - expectedTotalVAT) < 0.01 &&
+                Math.abs(totals.totalTTC - expectedTotalTTC) < 0.01
+            );
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 10: Mélange d'éléments de facturation**
+// **Validates: Requirements 4.5**
+testFramework.test('Property 10: Mélange d\'éléments de facturation', () => {
+    testFramework.property(
+        () => ({
+            items: Array.from({ length: testFramework.randomInt(1, 5) }, () => ({
+                quantity: testFramework.randomFloat(1, 10),
+                unitPrice: testFramework.randomFloat(1, 100),
+                discount: testFramework.randomFloat(0, 50),
+                vatRate: testFramework.randomFloat(0, 25)
+            })),
+            hourlyItems: Array.from({ length: testFramework.randomInt(1, 3) }, () => ({
+                hours: testFramework.randomFloat(1, 40),
+                hourlyRate: testFramework.randomFloat(10, 200)
+            }))
+        }),
+        (data) => {
+            // Vérifier que le système peut traiter simultanément articles et prestations horaires
+            const totals = TotalCalculator.calculateFinalTotals(data.items, data.hourlyItems);
+            
+            // Le système doit pouvoir calculer des totaux cohérents avec les deux types d'éléments
+            const hasItems = data.items.length > 0;
+            const hasHourlyItems = data.hourlyItems.length > 0;
+            
+            // Si on a les deux types d'éléments, le total doit être la somme des deux
+            if (hasItems && hasHourlyItems) {
+                const itemsSubtotal = ItemCalculator.calculateSubtotal(data.items);
+                const hourlySubtotal = HourlyCalculator.calculateHourlySubtotal(data.hourlyItems);
+                const expectedSubtotal = itemsSubtotal + hourlySubtotal;
+                
+                return Math.abs(totals.subtotalHT - expectedSubtotal) < 0.01;
+            }
+            
+            return true; // Si on n'a qu'un type, c'est toujours valide
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
 });
 
 // Exécution des tests au chargement
