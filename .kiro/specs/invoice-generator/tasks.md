@@ -69,27 +69,27 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
 - [x] 4. Point de contrôle - Calculs de base
   - S'assurer que tous les tests de calculs passent, demander à l'utilisateur si des questions se posent.
 
-- [ ] 5. Implémentation de l'interface utilisateur de base
-  - [ ] 5.1 Créer l'interface HTML principale (index.html)
+- [x] 5. Implémentation de l'interface utilisateur de base
+  - [x] 5.1 Créer l'interface HTML principale (index.html)
     - Structurer les sections : informations entreprise, articles, prestations, totaux
     - Implémenter les formulaires de saisie avec validation HTML5
     - _Exigences: 1.2, 2.1-2.6, 3.1-3.4, 4.1-4.3_
 
-  - [ ] 5.2 Créer les styles CSS de base (main.css)
+  - [x] 5.2 Créer les styles CSS de base (main.css)
     - Implémenter le layout responsive desktop-first
     - Créer les styles pour le format A4 avec marges d'impression
     - _Exigences: 1.1, 1.3, 11.1_
 
-  - [ ] 5.3 Tests de propriété pour le format A4
+  - [x] 5.3 Tests de propriété pour le format A4
     - **Propriété 1: Format A4 des factures**
     - **Valide: Exigences 1.1, 1.3**
 
-  - [ ] 5.4 Tests de propriété pour la structure de document
+  - [x] 5.4 Tests de propriété pour la structure de document
     - **Propriété 2: Structure de document**
     - **Valide: Exigences 1.2**
 
-- [ ] 6. Implémentation de la gestion des devises
-  - [ ] 6.1 Créer le gestionnaire de devises (currency.js)
+- [-] 6. Implémentation de la gestion des devises
+  - [-] 6.1 Créer le gestionnaire de devises (currency.js)
     - Implémenter la liste complète des devises ISO 4217
     - Créer les fonctions de formatage avec position du symbole
     - Définir EUR comme devise par défaut
