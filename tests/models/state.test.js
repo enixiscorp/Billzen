@@ -83,4 +83,40 @@ test('État global - Tests de propriétés', async (t) => {
             }
         ));
     });
+    
+    // **Feature: invoice-generator, Property 3: Informations d'entreprise complètes**
+    // **Validates: Requirements 2.1, 2.3, 2.4, 2.5**
+    await t.test('Property 3: Informations d\'entreprise complètes', () => {
+        fc.assert(fc.property(
+            generators.companyInfo(),
+            fc.string({ minLength: 1, maxLength: 20 }), // numéro de facture
+            (companyData, invoiceNumber) => {
+                // Sauvegarder l'état initial
+                const initialState = JSON.parse(JSON.stringify(getState()));
+                
+                // Mettre à jour les informations d'entreprise
+                updateState('invoice.company.name', companyData.name);
+                updateState('invoice.company.address', companyData.address);
+                updateState('invoice.company.phone', companyData.phone);
+                updateState('invoice.company.email', companyData.email);
+                updateState('invoice.company.legalInfo', companyData.legalInfo);
+                updateState('invoice.number', invoiceNumber);
+                
+                const state = getState();
+                
+                // Vérifier que toutes les données sont correctement stockées
+                assert.strictEqual(state.invoice.company.name, companyData.name);
+                assert.strictEqual(state.invoice.company.address, companyData.address);
+                assert.strictEqual(state.invoice.company.phone, companyData.phone);
+                assert.strictEqual(state.invoice.company.email, companyData.email);
+                assert.strictEqual(state.invoice.company.legalInfo, companyData.legalInfo);
+                assert.strictEqual(state.invoice.number, invoiceNumber);
+                
+                // Restaurer l'état initial pour les autres tests
+                setState(initialState);
+                
+                return true;
+            }
+        ));
+    });
 });

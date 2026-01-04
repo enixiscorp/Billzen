@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Validation - Modèles de Données</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-summary {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .summary-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .summary-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        .property-test {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4caf50;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Tests de Validation - Modèles de Données</h1>
+    
+    <div class="test-container">
+        <h2>Progression des Tests</h2>
+        <div class="progress">
+            <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+        </div>
+        <div id="progress-text">Initialisation...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Résultats des Tests</h2>
+        <div id="test-results"></div>
+        <div id="test-summary" class="test-summary"></div>
+    </div>
+
+    <!-- Import des modules à tester -->
+    <script src="js/models/state.js"></script>
+
+    <script>
+        // Framework de test rapide et efficace
+        class FastTestRunner {
+            constructor() {
+                this.results = [];
+                this.totalTests = 0;
+                this.completedTests = 0;
+            }
+
+            updateProgress() {
+                const percentage = (this.completedTests / this.totalTests) * 100;
+                document.getElementById('progress-bar').style.width = percentage + '%';
+                document.getElementById('progress-text').textContent = 
+                    `${this.completedTests}/${this.totalTests} tests complétés (${Math.round(percentage)}%)`;
+            }
+
+            addResult(name, passed, error = null, iterations = null) {
+                this.results.push({ name, passed, error, iterations });
+                this.completedTests++;
+                this.updateProgress();
+                this.displayLatestResult();
+            }
+
+            displayLatestResult() {
+                const result = this.results[this.results.length - 1];
+                const resultsContainer = document.getElementById('test-results');
+                
+                const div = document.createElement('div');
+                div.className = `test-result ${result.passed ? 'test-pass' : 'test-fail'}`;
+                
+                if (result.passed) {
+                    div.innerHTML = `✓ ${result.name}${result.iterations ? ` (${result.iterations} itérations)` : ''}`;
+                } else {
+                    div.innerHTML = `✗ ${result.name}: ${result.error}`;
+                }
+                
+                resultsContainer.appendChild(div);
+                div.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            displaySummary() {
+                const passed = this.results.filter(r => r.passed).length;
+                const failed = this.results.length - passed;
+                
+                const summaryContainer = document.getElementById('test-summary');
+                summaryContainer.textContent = `Tests: ${this.results.length}, Réussis: ${passed}, Échoués: ${failed}`;
+                summaryContainer.className = `test-summary ${failed === 0 ? 'summary-pass' : 'summary-fail'}`;
+            }
+
+            async runTest(name, testFn, iterations = 1) {
+                try {
+                    await testFn();
+                    this.addResult(name, true, null, iterations > 1 ? iterations : null);
+                } catch (error) {
+                    this.addResult(name, false, error.message);
+                }
+            }
+
+            async runPropertyTest(name, generator, property, iterations = 100) {
+                try {
+                    for (let i = 0; i < iterations; i++) {
+                        const data = generator();
+                        if (!property(data)) {
+                            throw new Error(`Propriété échouée à l'itération ${i + 1} avec: ${JSON.stringify(data)}`);
+                        }
+                    }
+                    this.addResult(name, true, null, iterations);
+                } catch (error) {
+                    this.addResult(name, false, error.message);
+                }
+            }
+
+            randomString(length = 10) {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+
+            randomFloat(min = 0, max = 100) {
+                return Math.random() * (max - min) + min;
+            }
+
+            randomInt(min = 1, max = 100) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+        }
+
+        // Exécution automatique des tests
+        document.addEventListener('DOMContentLoaded', async () => {
+            const runner = new FastTestRunner();
+            
+            // Définir le nombre total de tests
+            runner.totalTests = 8;
+            runner.updateProgress();
+
+            console.log('🚀 Démarrage des tests de validation...');
+
+            // Tests unitaires de base
+            await runner.runTest('État global - getState retourne un objet valide', () => {
+                const state = getState();
+                if (!state.invoice) throw new Error('État doit contenir une facture');
+                if (!state.invoice.company) throw new Error('Facture doit contenir des infos entreprise');
+                if (!Array.isArray(state.invoice.items)) throw new Error('Articles doivent être un tableau');
+                if (!Array.isArray(state.invoice.hourlyItems)) throw new Error('Prestations doivent être un tableau');
+            });
+
+            await runner.runTest('Validation article valide', () => {
+                const validItem = {
+                    reference: 'REF001',
+                    description: 'Test item',
+                    quantity: 2,
+                    unitPrice: 10.50
+                };
+                if (!validateItem(validItem)) throw new Error('Article valide rejeté');
+            });
+
+            await runner.runTest('Validation article invalide (référence vide)', () => {
+                const invalidItem = {
+                    reference: '',
+                    description: 'Test item',
+                    quantity: 2,
+                    unitPrice: 10.50
+                };
+                if (validateItem(invalidItem)) throw new Error('Article invalide accepté');
+            });
+
+            await runner.runTest('Validation prestation horaire valide', () => {
+                const validHourlyItem = {
+                    description: 'Consultation',
+                    hours: 8,
+                    hourlyRate: 75
+                };
+                if (!validateHourlyItem(validHourlyItem)) throw new Error('Prestation valide rejetée');
+            });
+
+            await runner.runTest('Validation prestation horaire invalide (heures négatives)', () => {
+                const invalidHourlyItem = {
+                    description: 'Consultation',
+                    hours: -2,
+                    hourlyRate: 75
+                };
+                if (validateHourlyItem(invalidHourlyItem)) throw new Error('Prestation invalide acceptée');
+            });
+
+            // **Feature: invoice-generator, Property 3: Informations d'entreprise complètes**
+            // **Validates: Requirements 2.1, 2.3, 2.4, 2.5**
+            await runner.runPropertyTest(
+                'Property 3: Informations d\'entreprise complètes',
+                () => ({
+                    name: runner.randomString(runner.randomInt(1, 50)),
+                    address: runner.randomString(runner.randomInt(10, 100)),
+                    phone: runner.randomString(runner.randomInt(10, 15)),
+                    email: `${runner.randomString(5)}@${runner.randomString(5)}.com`,
+                    legalInfo: runner.randomString(runner.randomInt(0, 200)),
+                    invoiceNumber: runner.randomString(runner.randomInt(1, 20))
+                }),
+                (data) => {
+                    const initialState = JSON.parse(JSON.stringify(getState()));
+                    
+                    try {
+                        updateState('invoice.company.name', data.name);
+                        updateState('invoice.company.address', data.address);
+                        updateState('invoice.company.phone', data.phone);
+                        updateState('invoice.company.email', data.email);
+                        updateState('invoice.company.legalInfo', data.legalInfo);
+                        updateState('invoice.number', data.invoiceNumber);
+                        
+                        const state = getState();
+                        
+                        return (
+                            state.invoice.company.name === data.name &&
+                            state.invoice.company.address === data.address &&
+                            state.invoice.company.phone === data.phone &&
+                            state.invoice.company.email === data.email &&
+                            state.invoice.company.legalInfo === data.legalInfo &&
+                            state.invoice.number === data.invoiceNumber
+                        );
+                    } finally {
+                        setState(initialState);
+                    }
+                },
+                100
+            );
+
+            // **Feature: invoice-generator, Property 6: Validation des articles**
+            // **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+            await runner.runPropertyTest(
+                'Property 6: Validation des articles',
+                () => ({
+                    reference: Math.random() > 0.5 ? runner.randomString(runner.randomInt(1, 20)) : '',
+                    description: Math.random() > 0.5 ? runner.randomString(runner.randomInt(1, 100)) : '',
+                    quantity: Math.random() > 0.5 ? runner.randomFloat(0.1, 1000) : runner.randomFloat(-100, 0),
+                    unitPrice: Math.random() > 0.5 ? runner.randomFloat(0.01, 10000) : runner.randomFloat(-1000, 0)
+                }),
+                (data) => {
+                    const isValid = validateItem(data);
+                    const shouldBeValid = (
+                        data.reference && data.reference.trim() !== '' &&
+                        data.description && data.description.trim() !== '' &&
+                        data.quantity > 0 &&
+                        data.unitPrice > 0
+                    );
+                    return isValid === shouldBeValid;
+                },
+                100
+            );
+
+            // **Feature: invoice-generator, Property 8: Validation des prestations horaires**
+            // **Validates: Requirements 4.1, 4.2, 4.3**
+            await runner.runPropertyTest(
+                'Property 8: Validation des prestations horaires',
+                () => ({
+                    description: Math.random() > 0.5 ? runner.randomString(runner.randomInt(1, 100)) : '',
+                    hours: Math.random() > 0.5 ? runner.randomFloat(0.1, 1000) : runner.randomFloat(-100, 0),
+                    hourlyRate: Math.random() > 0.5 ? runner.randomFloat(1, 1000) : runner.randomFloat(-1000, 0)
+                }),
+                (data) => {
+                    const isValid = validateHourlyItem(data);
+                    const shouldBeValid = (
+                        data.description && data.description.trim() !== '' &&
+                        data.hours > 0 &&
+                        data.hourlyRate > 0
+                    );
+                    return isValid === shouldBeValid;
+                },
+                100
+            );
+
+            // Afficher le résumé final
+            runner.displaySummary();
+            
+            const passed = runner.results.filter(r => r.passed).length;
+            const failed = runner.results.length - passed;
+            
+            console.log(`✅ Tests terminés: ${passed} réussis, ${failed} échoués`);
+            
+            if (failed === 0) {
+                console.log('🎉 Tous les tests sont passés avec succès!');
+                document.title = '✅ Tests Réussis - Modèles de Données';
+            } else {
+                console.log('❌ Certains tests ont échoué');
+                document.title = '❌ Tests Échoués - Modèles de Données';
+            }
+        });
+    </script>
+</body>
+</html>

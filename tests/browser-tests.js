@@ -96,6 +96,105 @@ testFramework.test('Property - ItemCalculator toujours positif', () => {
     );
 });
 
+// **Feature: invoice-generator, Property 3: Informations d'entreprise complètes**
+// **Validates: Requirements 2.1, 2.3, 2.4, 2.5**
+testFramework.test('Property 3: Informations d\'entreprise complètes', () => {
+    testFramework.property(
+        () => ({
+            name: testFramework.randomString(testFramework.randomInt(1, 50)),
+            address: testFramework.randomString(testFramework.randomInt(10, 100)),
+            phone: testFramework.randomString(testFramework.randomInt(10, 15)),
+            email: `${testFramework.randomString(5)}@${testFramework.randomString(5)}.com`,
+            legalInfo: testFramework.randomString(testFramework.randomInt(0, 200)),
+            invoiceNumber: testFramework.randomString(testFramework.randomInt(1, 20))
+        }),
+        (data) => {
+            // Sauvegarder l'état initial
+            const initialState = JSON.parse(JSON.stringify(getState()));
+            
+            try {
+                // Mettre à jour les informations d'entreprise
+                updateState('invoice.company.name', data.name);
+                updateState('invoice.company.address', data.address);
+                updateState('invoice.company.phone', data.phone);
+                updateState('invoice.company.email', data.email);
+                updateState('invoice.company.legalInfo', data.legalInfo);
+                updateState('invoice.number', data.invoiceNumber);
+                
+                const state = getState();
+                
+                // Vérifier que toutes les données sont correctement stockées et affichées
+                const isValid = (
+                    state.invoice.company.name === data.name &&
+                    state.invoice.company.address === data.address &&
+                    state.invoice.company.phone === data.phone &&
+                    state.invoice.company.email === data.email &&
+                    state.invoice.company.legalInfo === data.legalInfo &&
+                    state.invoice.number === data.invoiceNumber
+                );
+                
+                return isValid;
+            } finally {
+                // Restaurer l'état initial pour les autres tests
+                setState(initialState);
+            }
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 6: Validation des articles**
+// **Validates: Requirements 3.1, 3.2, 3.3, 3.4**
+testFramework.test('Property 6: Validation des articles', () => {
+    testFramework.property(
+        () => ({
+            reference: Math.random() > 0.5 ? testFramework.randomString(testFramework.randomInt(1, 20)) : '',
+            description: Math.random() > 0.5 ? testFramework.randomString(testFramework.randomInt(1, 100)) : '',
+            quantity: Math.random() > 0.5 ? testFramework.randomFloat(0.1, 1000) : testFramework.randomFloat(-100, 0),
+            unitPrice: Math.random() > 0.5 ? testFramework.randomFloat(0.01, 10000) : testFramework.randomFloat(-1000, 0)
+        }),
+        (data) => {
+            const isValid = validateItem(data);
+            
+            // Un article doit être rejeté s'il manque des champs obligatoires
+            const shouldBeValid = (
+                data.reference && data.reference.trim() !== '' &&
+                data.description && data.description.trim() !== '' &&
+                data.quantity > 0 &&
+                data.unitPrice > 0
+            );
+            
+            return isValid === shouldBeValid;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
+// **Feature: invoice-generator, Property 8: Validation des prestations horaires**
+// **Validates: Requirements 4.1, 4.2, 4.3**
+testFramework.test('Property 8: Validation des prestations horaires', () => {
+    testFramework.property(
+        () => ({
+            description: Math.random() > 0.5 ? testFramework.randomString(testFramework.randomInt(1, 100)) : '',
+            hours: Math.random() > 0.5 ? testFramework.randomFloat(0.1, 1000) : testFramework.randomFloat(-100, 0),
+            hourlyRate: Math.random() > 0.5 ? testFramework.randomFloat(1, 1000) : testFramework.randomFloat(-1000, 0)
+        }),
+        (data) => {
+            const isValid = validateHourlyItem(data);
+            
+            // Une prestation horaire doit être rejetée s'il manque des champs obligatoires
+            const shouldBeValid = (
+                data.description && data.description.trim() !== '' &&
+                data.hours > 0 &&
+                data.hourlyRate > 0
+            );
+            
+            return isValid === shouldBeValid;
+        },
+        100 // 100 itérations minimum selon les spécifications
+    );
+});
+
 testFramework.test('Property - HourlyCalculator multiplication correcte', () => {
     testFramework.property(
         () => ({

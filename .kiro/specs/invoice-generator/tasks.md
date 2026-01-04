@@ -17,25 +17,25 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
   - Créer la structure de test de base
   - _Exigences: Stratégie de test_
 
-- [ ] 2. Implémentation des modèles de données et état
-  - [ ] 2.1 Créer le gestionnaire d'état global (state.js)
+- [x] 2. Implémentation des modèles de données et état
+  - [x] 2.1 Créer le gestionnaire d'état global (state.js)
     - Implémenter les structures de données pour Invoice, CompanyInfo, Item, HourlyItem
     - Créer les fonctions de gestion d'état (getState, setState, updateState)
     - _Exigences: 2.1, 2.3, 2.4, 2.5, 3.1-3.4, 4.1-4.3_
 
-  - [ ] 2.2 Tests de propriété pour les modèles de données
+  - [x] 2.2 Tests de propriété pour les modèles de données
     - **Propriété 3: Informations d'entreprise complètes**
     - **Valide: Exigences 2.1, 2.3, 2.4, 2.5**
 
-  - [ ] 2.3 Tests de propriété pour la validation des articles
+  - [x] 2.3 Tests de propriété pour la validation des articles
     - **Propriété 6: Validation des articles**
     - **Valide: Exigences 3.1, 3.2, 3.3, 3.4**
 
-  - [ ] 2.4 Tests de propriété pour la validation des prestations horaires
+  - [x] 2.4 Tests de propriété pour la validation des prestations horaires
     - **Propriété 8: Validation des prestations horaires**
     - **Valide: Exigences 4.1, 4.2, 4.3**
 
-- [ ] 3. Implémentation des calculateurs
+- [-] 3. Implémentation des calculateurs
   - [ ] 3.1 Créer le calculateur d'articles (ItemCalculator)
     - Implémenter calculateLineTotal avec gestion quantité, prix, remise, TVA
     - Implémenter calculateSubtotal, calculateTotalDiscount, calculateTotalVAT
