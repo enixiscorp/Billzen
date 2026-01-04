@@ -1,0 +1,21 @@
+{
+  "name": "invoice-generator",
+  "version": "1.0.0",
+  "description": "Générateur de factures professionnelles",
+  "main": "index.html",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000"
+  },
+  "keywords": ["invoice", "generator", "pdf", "facture"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "fast-check": "^3.15.0"
+  },
+  "dependencies": {
+    "html2pdf.js": "^0.10.1",
+    "html2canvas": "^1.4.1"
+  }
+}
