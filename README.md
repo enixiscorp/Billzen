@@ -1,13 +1,16 @@
-# Générateur de Factures Professionnelles
+# Billzen - Générateur de Factures Professionnelles
 
-Application web de génération de factures professionnelles développée en HTML/CSS/JavaScript vanilla.
+**Billzen** est une application web moderne de génération de factures professionnelles développée en HTML/CSS/JavaScript vanilla. Créez des factures élégantes et personnalisables en quelques clics.
 
-## Fonctionnalités
+## 🎨 Fonctionnalités
 
-- Création de factures au format A4
-- Gestion des informations d'entreprise
-- Articles et prestations horaires
-- Calculs automatiques (sous-totaux, TVA, remises)
+- **Création de factures au format A4** avec mise en page professionnelle
+- **7 thèmes prédéfinis** avec prévisualisation en temps réel
+- **Gestion complète des informations d'entreprise** avec upload de logo
+- **Articles et prestations horaires** avec calculs automatiques
+- **Personnalisation avancée** : couleurs, polices, textes
+- **Export PDF et JPG** haute qualité sans watermark
+- **Interface responsive** adaptée à tous les écrans
 - Support multi-devises
 - Thèmes personnalisables
 - Export PDF et JPG côté client

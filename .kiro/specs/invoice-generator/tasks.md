@@ -134,17 +134,17 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
     - **Propriété 18: Personnalisation graphique**
     - **Valide: Exigences 7.4, 7.5, 7.6, 7.7, 7.8, 7.9**
 
-- [-] 9. Implémentation de la gestion des fichiers
-  - [-] 9.1 Créer la fonctionnalité d'upload de logo
+- [x] 9. Implémentation de la gestion des fichiers
+  - [x] 9.1 Créer la fonctionnalité d'upload de logo
     - Implémenter l'upload de fichiers image avec validation
     - Créer la prévisualisation du logo
     - _Exigences: 2.2_
 
-  - [ ] 9.2 Tests de propriété pour l'upload de logo
+  - [x] 9.2 Tests de propriété pour l'upload de logo
     - **Propriété 4: Upload de logo valide**
     - **Valide: Exigences 2.2**
 
-- [ ] 10. Point de contrôle - Interface utilisateur complète
+- [-] 10. Point de contrôle - Interface utilisateur complète
   - S'assurer que toute l'interface fonctionne, demander à l'utilisateur si des questions se posent.
 
 - [ ] 11. Implémentation de la réactivité et performance

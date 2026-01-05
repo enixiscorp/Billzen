@@ -126,11 +126,177 @@ body {
     color: white;
     padding: var(--space-md) var(--space-lg);
     box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
 }
 
-.app-header h1 {
-    font-size: var(--font-size-lg);
-    font-weight: 600;
+.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.app-logo {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.logo-text {
+    font-family: var(--font-header);
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: -4px;
+    position: relative;
+    display: inline-block;
+}
+
+.logo-text::before {
+    content: 'Billzen';
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.app-header:hover .logo-text::before {
+    opacity: 0.3;
+}
+
+.logo-text::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 100%);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.app-header:hover .logo-text::after {
+    width: 100%;
+}
+
+.logo-tagline {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-left: 2px;
+}
+
+/* Animations pour le logo */
+.logo-text {
+    transition: all 0.3s ease;
+    animation: logoGlow 4s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%, 100% { 
+        filter: brightness(1) drop-shadow(0 0 5px rgba(255,255,255,0.1));
+    }
+    50% { 
+        filter: brightness(1.05) drop-shadow(0 0 10px rgba(255,255,255,0.2));
+    }
+}
+
+.app-header:hover .logo-text {
+    transform: translateY(-1px);
+    animation-play-state: paused;
+    filter: brightness(1.1) drop-shadow(0 0 15px rgba(255,255,255,0.3));
+}
+
+/* Adaptation du logo aux thèmes */
+.theme-modern .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-classic .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #dc2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-corporate .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-elegant .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-minimal .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #6b7280 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.theme-creative .logo-text {
+    background: linear-gradient(135deg, #ffffff 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Version alternative avec SVG */
+.app-logo.svg-logo {
+    background-image: url('../assets/billzen-logo.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+    width: 200px;
+    height: 60px;
+    padding-left: 0;
+}
+
+.app-logo.svg-logo .logo-text,
+.app-logo.svg-logo .logo-tagline {
+    display: none;
+}
+
+/* Fallback pour navigateurs sans support SVG */
+.no-svg .app-logo.svg-logo {
+    background-image: none;
+}
+
+.no-svg .app-logo.svg-logo .logo-text,
+.no-svg .app-logo.svg-logo .logo-tagline {
+    display: block;
 }
 
 .app-main {
@@ -144,24 +310,29 @@ body {
 /* Container de facture */
 #invoice-container {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 420px;
     gap: var(--space-lg);
-    min-height: 600px;
+    min-height: calc(100vh - 120px);
+    align-items: start;
 }
 
 /* Prévisualisation de facture - Format A4 */
 .invoice-preview {
-    background: white;
+    background: var(--color-background);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     padding: var(--space-lg);
-    /* Format A4 proportions (210 × 297 mm) */
+    /* Format A4 proportions (210 × 297 mm) avec taille optimisée */
+    width: 100%;
+    max-width: 595px; /* A4 width in pixels at 72 DPI */
     aspect-ratio: 210/297;
-    max-height: 80vh;
+    height: auto;
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
-    /* Marges d'impression */
     margin: 0;
     position: relative;
+    /* Transition pour les changements de thème */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* En-tête de facture */
@@ -176,6 +347,8 @@ body {
     background: var(--color-header-bg);
     padding: var(--layout-margins);
     border-radius: var(--border-radius);
+    /* Transition pour les changements de thème */
+    transition: all 0.3s ease;
 }
 
 .company-info {
@@ -197,6 +370,23 @@ body {
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.company-logo:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.company-logo.has-logo {
+    border-style: solid;
+    border-color: var(--color-accent);
+}
+
+.company-logo.loading {
+    opacity: 0.6;
+    border-color: var(--color-primary);
 }
 
 .company-details h2 {
@@ -234,12 +424,15 @@ body {
 }
 
 .legal-info {
-    background: #f1f5f9;
+    background: var(--color-header-bg);
     padding: var(--space-sm);
     border-radius: var(--radius-sm);
     margin-bottom: var(--space-md);
     font-size: var(--font-size-sm);
     color: #64748b;
+    border: 1px solid var(--color-border);
+    /* Transition pour les changements de thème */
+    transition: all 0.3s ease;
 }
 
 .invoice-items {
@@ -260,7 +453,9 @@ body {
 .hourly-table td {
     padding: var(--space-sm);
     text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
+    /* Transition pour les changements de thème */
+    transition: border-color 0.3s ease;
 }
 
 .items-table th,
@@ -268,6 +463,9 @@ body {
     background: var(--color-primary);
     color: white;
     font-weight: 600;
+    font-family: var(--font-header);
+    /* Transition pour les changements de thème */
+    transition: background-color 0.3s ease;
 }
 
 .items-table td:nth-child(3),
@@ -285,17 +483,21 @@ body {
 .invoice-totals {
     margin-left: auto;
     width: 300px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     overflow: hidden;
+    /* Transition pour les changements de thème */
+    transition: border-color 0.3s ease;
 }
 
 .totals-row {
     display: flex;
     justify-content: space-between;
     padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
     font-size: var(--font-size-sm);
+    /* Transition pour les changements de thème */
+    transition: border-color 0.3s ease;
 }
 
 .totals-row:last-child {
@@ -313,10 +515,12 @@ body {
 .invoice-footer {
     margin-top: var(--space-lg);
     padding-top: var(--space-md);
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--color-border);
     text-align: center;
     font-size: var(--font-size-sm);
     color: #64748b;
+    /* Transition pour les changements de thème */
+    transition: border-color 0.3s ease;
 }
 
 .invoice-footer div {
@@ -330,8 +534,10 @@ body {
     box-shadow: var(--shadow-sm);
     padding: var(--space-md);
     height: fit-content;
-    max-height: 80vh;
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
+    position: sticky;
+    top: var(--space-lg);
 }
 
 .control-section {
@@ -372,6 +578,14 @@ body {
 .form-group textarea {
     resize: vertical;
     min-height: 60px;
+}
+
+.form-help {
+    display: block;
+    margin-top: var(--space-xs);
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.4;
 }
 
 /* Actions sur les éléments */
@@ -454,6 +668,25 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    #invoice-container {
+        grid-template-columns: 1fr 380px;
+        gap: var(--space-md);
+    }
+    
+    .invoice-preview {
+        max-width: 100%;
+    }
+    
+    .logo-text {
+        font-size: 28px;
+    }
+    
+    .logo-tagline {
+        font-size: 11px;
+    }
+}
+
 @media (max-width: 768px) {
     #invoice-container {
         grid-template-columns: 1fr;
@@ -464,9 +697,27 @@ body {
         padding: var(--space-md);
     }
     
+    .app-header {
+        padding: var(--space-sm) var(--space-md);
+    }
+    
+    .logo-text {
+        font-size: 24px;
+    }
+    
+    .logo-tagline {
+        font-size: 10px;
+    }
+    
     .invoice-preview {
         aspect-ratio: auto;
         min-height: 400px;
+        max-height: none;
+        max-width: 100%;
+    }
+    
+    .invoice-controls {
+        position: static;
         max-height: none;
     }
     
@@ -501,6 +752,24 @@ body {
     .items-table th,
     .items-table td {
         padding: var(--space-xs);
+    }
+}
+
+@media (min-width: 1200px) {
+    #invoice-container {
+        grid-template-columns: 1fr 450px;
+    }
+    
+    .invoice-preview {
+        max-width: 650px;
+    }
+    
+    .logo-text {
+        font-size: 36px;
+    }
+    
+    .logo-tagline {
+        font-size: 13px;
     }
 }
 
@@ -640,33 +909,113 @@ optgroup option {
     font-weight: 600;
 }
 
-/* Thèmes personnalisés */
+/* Thèmes personnalisés avec transitions */
+.theme-default {
+    --color-primary: #2563eb;
+    --color-secondary: #0f172a;
+    --color-accent: #22c55e;
+    --color-header-bg: #f8fafc;
+}
+
 .theme-modern {
     --color-primary: #6366f1;
     --color-secondary: #1e1b4b;
+    --color-accent: #f59e0b;
+    --color-header-bg: #f9fafb;
 }
 
 .theme-classic {
     --color-primary: #059669;
     --color-secondary: #064e3b;
+    --color-accent: #dc2626;
+    --color-header-bg: #f3f4f6;
 }
 
 .theme-corporate {
     --color-primary: #1f2937;
     --color-secondary: #111827;
+    --color-accent: #3b82f6;
+    --color-header-bg: #f9fafb;
 }
 
 .theme-elegant {
     --color-primary: #7c3aed;
     --color-secondary: #581c87;
+    --color-accent: #f97316;
+    --color-header-bg: #faf5ff;
 }
 
 .theme-minimal {
     --color-primary: #000000;
     --color-secondary: #374151;
+    --color-accent: #6b7280;
+    --color-header-bg: #ffffff;
 }
 
 .theme-creative {
     --color-primary: #ec4899;
     --color-secondary: #be185d;
+    --color-accent: #06b6d4;
+    --color-header-bg: #fdf2f8;
+}
+
+/* Transitions globales pour les changements de thème */
+.invoice-preview,
+.invoice-header,
+.invoice-totals,
+.totals-row,
+.invoice-footer,
+.legal-info,
+.items-table th,
+.hourly-table th,
+.company-details h2,
+.invoice-info h3,
+.control-section h3,
+.customization-subsection h4 {
+    transition: all 0.3s ease;
+}
+
+/* Indicateur de changement de thème */
+.theme-changing {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-changing::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: themeChangeShimmer 0.6s ease-in-out;
+    z-index: 1;
+}
+
+@keyframes themeChangeShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Amélioration de l'indicateur de prévisualisation */
+.theme-preview-mode .invoice-preview {
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.theme-preview-mode .invoice-preview::after {
+    content: 'Aperçu du thème';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--color-primary);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+    z-index: 10;
 }

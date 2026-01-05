@@ -109,6 +109,8 @@ class InvoiceManager {
             logoDisplay.style.backgroundRepeat = 'no-repeat';
             logoDisplay.style.backgroundPosition = 'center';
             logoDisplay.textContent = ''; // Supprimer le texte placeholder
+            logoDisplay.classList.add('has-logo');
+            logoDisplay.classList.remove('loading');
         }
     }
     
@@ -122,6 +124,7 @@ class InvoiceManager {
         if (logoDisplay) {
             logoDisplay.style.backgroundImage = '';
             logoDisplay.textContent = 'Logo';
+            logoDisplay.classList.remove('has-logo', 'loading');
         }
     }
     

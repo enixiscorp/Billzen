@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Property 4 - Upload de Logo Valide</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4caf50;
+            transition: width 0.3s ease;
+        }
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #64748b;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 10px;
+        }
+        .company-logo.has-logo {
+            border-style: solid;
+            border-color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Property 4: Upload de Logo Valide</h1>
+    
+    <div class="test-container">
+        <h2>Progression</h2>
+        <div class="progress">
+            <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+        </div>
+        <div id="progress-text">Initialisation...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Résultats des Tests</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Élément de test pour le logo -->
+    <div style="position: absolute; left: -9999px;">
+        <div class="company-logo" id="test-company-logo-display">Logo</div>
+    </div>
+
+    <script src="js/models/state.js"></script>
+    <script src="js/managers/InvoiceManager.js"></script>
+    
+    <script>
+        let testCount = 0;
+        let completedTests = 0;
+        const totalTests = 100; // 100 itérations pour le test de propriété
+
+        function updateProgress() {
+            const percentage = (completedTests / totalTests) * 100;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').textContent = 
+                `${completedTests}/${totalTests} tests complétés (${Math.round(percentage)}%)`;
+        }
+
+        function addResult(name, passed, error = null) {
+            const resultsContainer = document.getElementById('test-results');
+            
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+            
+            if (passed) {
+                div.innerHTML = `✓ ${name}`;
+            } else {
+                div.innerHTML = `✗ ${name}: ${error}`;
+            }
+            
+            resultsContainer.appendChild(div);
+        }
+
+        // Générateur de fichiers image valides
+        function generateValidImageFile() {
+            const types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+            const extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+            
+            const typeIndex = Math.floor(Math.random() * types.length);
+            const type = types[typeIndex];
+            const extension = extensions[typeIndex];
+            
+            const name = `logo_${Math.random().toString(36).substr(2, 9)}.${extension}`;
+            const size = Math.floor(Math.random() * (5 * 1024 * 1024 - 1024)) + 1024; // 1KB à 5MB
+            
+            // Créer un blob avec du contenu factice
+            const content = new Array(Math.min(size, 1024)).fill(0).map(() => 
+                String.fromCharCode(Math.floor(Math.random() * 256))
+            ).join('');
+            
+            const blob = new Blob([content], { type });
+            const file = new File([blob], name, { 
+                type, 
+                lastModified: Date.now() 
+            });
+            
+            // Simuler la taille du fichier
+            Object.defineProperty(file, 'size', { 
+                value: size,
+                writable: false 
+            });
+            
+            return file;
+        }
+
+        // Générateur de fichiers invalides
+        function generateInvalidImageFile() {
+            const scenarios = [
+                // Fichier trop volumineux
+                () => {
+                    const file = generateValidImageFile();
+                    Object.defineProperty(file, 'size', { 
+                        value: 6 * 1024 * 1024, // 6MB
+                        writable: false 
+                    });
+                    return file;
+                },
+                // Type MIME invalide
+                () => {
+                    const invalidTypes = ['text/plain', 'application/pdf', 'video/mp4', 'audio/mp3'];
+                    const type = invalidTypes[Math.floor(Math.random() * invalidTypes.length)];
+                    const name = `document_${Math.random().toString(36).substr(2, 9)}.txt`;
+                    
+                    const blob = new Blob(['fake content'], { type });
+                    const file = new File([blob], name, { type, lastModified: Date.now() });
+                    Object.defineProperty(file, 'size', { value: 1024, writable: false });
+                    return file;
+                },
+                // Fichier null/undefined
+                () => null
+            ];
+            
+            const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            return scenario();
+        }
+
+        async function runPropertyTest() {
+            console.log('🚀 Démarrage du test de propriété pour l\'upload de logo...');
+            
+            let passedTests = 0;
+            let failedTests = 0;
+            const errors = [];
+            
+            try {
+                // **Feature: invoice-generator, Property 4: Upload de logo valide**
+                // **Validates: Requirements 2.2**
+                
+                for (let i = 0; i < 100; i++) {
+                    try {
+                        const manager = new InvoiceManager();
+                        
+                        // Générer un fichier image valide
+                        const validFile = generateValidImageFile();
+                        
+                        // Tester la validation
+                        const isValid = manager.validateLogoFile(validFile);
+                        
+                        if (!isValid) {
+                            throw new Error(`Fichier valide rejeté: ${validFile.name} (${validFile.type}, ${validFile.size} bytes)`);
+                        }
+                        
+                        // Tester l'upload (simulation)
+                        try {
+                            // Mock FileReader pour les tests
+                            const originalFileReader = window.FileReader;
+                            window.FileReader = function() {
+                                this.readAsDataURL = function(file) {
+                                    // Simuler un délai asynchrone
+                                    setTimeout(() => {
+                                        this.result = `data:${file.type};base64,${btoa('fake-image-data')}`;
+                                        if (this.onload) this.onload({ target: this });
+                                    }, 1);
+                                };
+                            };
+                            
+                            const uploadResult = await manager.uploadLogo(validFile);
+                            
+                            // Restaurer FileReader
+                            window.FileReader = originalFileReader;
+                            
+                            if (!uploadResult) {
+                                throw new Error(`Upload échoué pour fichier valide: ${validFile.name}`);
+                            }
+                            
+                            // Vérifier que le logo est stocké dans l'état
+                            const currentLogo = manager.getCurrentLogo();
+                            if (!currentLogo) {
+                                throw new Error('Logo non stocké après upload réussi');
+                            }
+                            
+                            if (currentLogo.name !== validFile.name) {
+                                throw new Error(`Nom de fichier incorrect: attendu ${validFile.name}, obtenu ${currentLogo.name}`);
+                            }
+                            
+                            if (currentLogo.type !== validFile.type) {
+                                throw new Error(`Type MIME incorrect: attendu ${validFile.type}, obtenu ${currentLogo.type}`);
+                            }
+                            
+                        } catch (uploadError) {
+                            throw new Error(`Erreur d'upload: ${uploadError.message}`);
+                        }
+                        
+                        passedTests++;
+                        
+                    } catch (error) {
+                        failedTests++;
+                        errors.push(`Itération ${i + 1}: ${error.message}`);
+                        
+                        // Arrêter après 5 échecs pour éviter le spam
+                        if (failedTests >= 5) {
+                            break;
+                        }
+                    }
+                    
+                    completedTests++;
+                    updateProgress();
+                    
+                    // Permettre à l'interface de se mettre à jour
+                    if (i % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+                
+                // Tester quelques cas invalides pour s'assurer qu'ils sont rejetés
+                for (let i = 0; i < 10; i++) {
+                    try {
+                        const manager = new InvoiceManager();
+                        const invalidFile = generateInvalidImageFile();
+                        
+                        const isValid = manager.validateLogoFile(invalidFile);
+                        
+                        if (isValid && invalidFile !== null) {
+                            failedTests++;
+                            errors.push(`Fichier invalide accepté: ${invalidFile ? invalidFile.name : 'null'}`);
+                        } else {
+                            passedTests++;
+                        }
+                        
+                    } catch (error) {
+                        // Les erreurs sont attendues pour les fichiers invalides
+                        passedTests++;
+                    }
+                }
+                
+                // Résultat final
+                if (failedTests === 0) {
+                    addResult(`Property 4: Upload de logo valide (${passedTests} tests réussis)`, true);
+                } else {
+                    const errorSample = errors.slice(0, 3).join('; ');
+                    addResult(`Property 4: Upload de logo valide`, false, 
+                        `${failedTests} échecs sur ${passedTests + failedTests} tests. Exemples: ${errorSample}`);
+                }
+                
+            } catch (error) {
+                addResult('Property 4: Upload de logo valide', false, `Erreur générale: ${error.message}`);
+            }
+            
+            console.log('✅ Test de propriété pour l\'upload de logo terminé!');
+            console.log(`Résultats: ${passedTests} réussis, ${failedTests} échecs`);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            runPropertyTest();
+        });
+    </script>
+</body>
+</html>

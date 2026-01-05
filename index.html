@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Factures Professionnelles</title>
+    <title>Billzen - Générateur de Factures Professionnelles</title>
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <div id="app">
         <header class="app-header">
-            <h1>Générateur de Factures</h1>
+            <div class="app-logo">
+                <span class="logo-text">Billzen</span>
+                <span class="logo-tagline">Factures Professionnelles</span>
+            </div>
         </header>
         
         <main class="app-main">
@@ -18,7 +21,7 @@
                 <div class="invoice-preview" id="invoice-preview">
                     <div class="invoice-header">
                         <div class="company-info">
-                            <div class="company-logo" id="company-logo-display"></div>
+                            <div class="company-logo" id="company-logo-display">Logo</div>
                             <div class="company-details">
                                 <h2 id="company-name-display">Nom de l'entreprise</h2>
                                 <div id="company-address-display">Adresse de l'entreprise</div>
@@ -110,6 +113,7 @@
                         <div class="form-group">
                             <label for="company-logo">Logo</label>
                             <input type="file" id="company-logo" accept="image/*" class="input">
+                            <small class="form-help">Formats acceptés: JPG, PNG, GIF, WebP, SVG (max 5MB). Cliquez sur la zone de logo pour changer.</small>
                         </div>
                         <div class="form-group">
                             <label for="company-address">Adresse *</label>
@@ -387,6 +391,7 @@
     <script src="js/managers/CurrencyManager.js"></script>
     <script src="js/engines/PDFEngine.js"></script>
     <script src="js/engines/ImageEngine.js"></script>
+    <script src="js/ui-handlers.js"></script>
     <script src="js/invoice-engine.js"></script>
 </body>
 </html>

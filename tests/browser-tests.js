@@ -826,3 +826,72 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Tests terminés');
     });
 });
+
+// **Feature: invoice-generator, Property 1: Format A4 des factures**
+// **Validates: Requirements 1.1, 1.3**
+testFramework.test('Property 1: Format A4 des factures', () => {
+    // Vérifier que l'élément de prévisualisation existe
+    const invoicePreview = document.querySelector('.invoice-preview');
+    testFramework.assert(invoicePreview, 'L\'élément de prévisualisation doit exister');
+    
+    // Obtenir les styles calculés
+    const computedStyle = window.getComputedStyle(invoicePreview);
+    const aspectRatio = computedStyle.getPropertyValue('aspect-ratio');
+    
+    // Vérifier le ratio A4 (210/297 ≈ 0.707)
+    if (aspectRatio && aspectRatio !== 'auto') {
+        const ratio = parseFloat(aspectRatio.split('/')[0]) / parseFloat(aspectRatio.split('/')[1]);
+        const expectedRatio = 210 / 297;
+        testFramework.assert(
+            Math.abs(ratio - expectedRatio) < 0.01,
+            `Le ratio A4 doit être ${expectedRatio.toFixed(3)}, obtenu: ${ratio.toFixed(3)}`
+        );
+    }
+    
+    // Vérifier les styles d'impression A4
+    const printStyles = Array.from(document.styleSheets)
+        .flatMap(sheet => {
+            try {
+                return Array.from(sheet.cssRules);
+            } catch (e) {
+                return [];
+            }
+        })
+        .filter(rule => rule.type === CSSRule.MEDIA_RULE && rule.conditionText === 'print')
+        .flatMap(mediaRule => Array.from(mediaRule.cssRules))
+        .find(rule => rule.selectorText && rule.selectorText.includes('.invoice-preview'));
+    
+    if (printStyles) {
+        const printStyle = printStyles.style;
+        testFramework.assert(
+            printStyle.width === '210mm',
+            'La largeur d\'impression doit être 210mm'
+        );
+        testFramework.assert(
+            printStyle.height === '297mm',
+            'La hauteur d\'impression doit être 297mm'
+        );
+    }
+});
+
+// **Feature: invoice-generator, Property 2: Structure de document**
+// **Validates: Requirements 1.2**
+testFramework.test('Property 2: Structure de document', () => {
+    const invoicePreview = document.querySelector('.invoice-preview');
+    testFramework.assert(invoicePreview, 'L\'élément de prévisualisation doit exister');
+    
+    // Vérifier la présence des trois sections distinctes
+    const header = invoicePreview.querySelector('.invoice-header');
+    const body = invoicePreview.querySelector('.invoice-body');
+    const footer = invoicePreview.querySelector('.invoice-footer');
+    
+    testFramework.assert(header, 'L\'en-tête de facture doit exister');
+    testFramework.assert(body, 'Le corps de facture doit exister');
+    testFramework.assert(footer, 'Le pied de facture doit exister');
+    
+    // Vérifier que les sections sont distinctes (pas imbriquées)
+    testFramework.assert(
+        !header.contains(body) && !header.contains(footer) && !body.contains(footer),
+        'Les sections doivent être distinctes et non imbriquées'
+    );
+});

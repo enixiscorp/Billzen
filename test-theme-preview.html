@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Prévisualisation des Thèmes</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .theme-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 6px;
+        }
+        .theme-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div style="background: #0f172a; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="app-logo">
+                <span class="logo-text">Billzen</span>
+                <span class="logo-tagline">Factures Professionnelles</span>
+            </div>
+        </div>
+        
+        <h1>Test de Prévisualisation des Thèmes</h1>
+        
+        <div class="theme-selector">
+            <label for="theme-test-select"><strong>Sélectionnez un thème pour voir la prévisualisation :</strong></label>
+            <select id="theme-test-select" class="input" style="margin-top: 10px;">
+                <option value="default">Défaut</option>
+                <option value="modern">Moderne</option>
+                <option value="classic">Classique</option>
+                <option value="corporate">Corporate</option>
+                <option value="elegant">Élégant</option>
+                <option value="minimal">Minimal</option>
+                <option value="creative">Créatif</option>
+            </select>
+            
+            <div class="theme-info" id="theme-info">
+                Thème actuel: <span id="current-theme">default</span><br>
+                Couleur primaire: <span id="primary-color">#2563eb</span><br>
+                Police d'en-tête: <span id="header-font">Inter</span>
+            </div>
+        </div>
+        
+        <!-- Mini prévisualisation de facture -->
+        <div id="invoice-container" style="grid-template-columns: 1fr;">
+            <div class="invoice-preview" id="invoice-preview" style="max-height: 600px;">
+                <div class="invoice-header">
+                    <div class="company-info">
+                        <div class="company-logo">Logo</div>
+                        <div class="company-details">
+                            <h2>Entreprise Test</h2>
+                            <div>123 Rue de la Paix</div>
+                            <div>75001 Paris</div>
+                            <div>01 23 45 67 89</div>
+                            <div>contact@entreprise.fr</div>
+                        </div>
+                    </div>
+                    <div class="invoice-info">
+                        <h3>FACTURE</h3>
+                        <div class="invoice-meta">
+                            <div>N° 001</div>
+                            <div>Date: 05/01/2026</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-body">
+                    <div class="legal-info">SIRET: 12345678901234 - TVA: FR12345678901</div>
+                    
+                    <div class="invoice-items">
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Description</th>
+                                    <th>Qté</th>
+                                    <th>Prix Unit.</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>REF001</td>
+                                    <td>Service de développement</td>
+                                    <td>10</td>
+                                    <td>50,00 €</td>
+                                    <td>500,00 €</td>
+                                </tr>
+                                <tr>
+                                    <td>REF002</td>
+                                    <td>Consultation technique</td>
+                                    <td>5</td>
+                                    <td>80,00 €</td>
+                                    <td>400,00 €</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="invoice-totals">
+                        <div class="totals-row">
+                            <span>Sous-total HT:</span>
+                            <span>900,00 €</span>
+                        </div>
+                        <div class="totals-row">
+                            <span>TVA (20%):</span>
+                            <span>180,00 €</span>
+                        </div>
+                        <div class="totals-row total-final">
+                            <span>Total TTC:</span>
+                            <span>1 080,00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-footer">
+                    <div>Mode de paiement: Virement bancaire</div>
+                    <div>Merci pour votre confiance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/models/state.js"></script>
+    <script src="js/managers/ThemeManager.js"></script>
+    
+    <script>
+        // Initialiser le gestionnaire de thèmes
+        const themeManager = new ThemeManager();
+        
+        // Appliquer le thème par défaut
+        themeManager.applyTheme('default');
+        
+        // Gestionnaire de changement de thème
+        const themeSelect = document.getElementById('theme-test-select');
+        const themeInfo = document.getElementById('theme-info');
+        const currentThemeSpan = document.getElementById('current-theme');
+        const primaryColorSpan = document.getElementById('primary-color');
+        const headerFontSpan = document.getElementById('header-font');
+        
+        function updateThemeInfo(themeId) {
+            const theme = themeManager.getTheme(themeId);
+            if (theme) {
+                currentThemeSpan.textContent = theme.name;
+                primaryColorSpan.textContent = theme.colors.primary;
+                headerFontSpan.textContent = theme.fonts.header.split(',')[0].replace(/'/g, '');
+            }
+        }
+        
+        themeSelect.addEventListener('change', (e) => {
+            const themeId = e.target.value;
+            
+            // Ajouter l'effet de prévisualisation
+            document.body.classList.add('theme-preview-mode');
+            const invoicePreview = document.querySelector('.invoice-preview');
+            if (invoicePreview) {
+                invoicePreview.classList.add('theme-changing');
+            }
+            
+            // Appliquer le thème avec un délai pour l'animation
+            setTimeout(() => {
+                themeManager.applyTheme(themeId);
+                updateThemeInfo(themeId);
+            }, 100);
+            
+            // Retirer les classes d'animation
+            setTimeout(() => {
+                document.body.classList.remove('theme-preview-mode');
+                if (invoicePreview) {
+                    invoicePreview.classList.remove('theme-changing');
+                }
+            }, 800);
+        });
+        
+        // Initialiser l'affichage des informations du thème
+        updateThemeInfo('default');
+        
+        // Écouter les événements de changement de thème
+        document.addEventListener('themeChanged', (e) => {
+            console.log('Thème changé:', e.detail);
+        });
+    </script>
+</body>
+</html>

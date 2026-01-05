@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Upload Logo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-summary {
+            font-weight: bold;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .logo-test-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #64748b;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin: 10px;
+        }
+        .company-logo.has-logo {
+            border-style: solid;
+            border-color: #22c55e;
+        }
+        .company-logo.loading {
+            opacity: 0.6;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de l'Upload de Logo</h1>
+    
+    <div class="logo-test-area">
+        <h3>Zone de test du logo</h3>
+        <div class="company-logo" id="company-logo-display">Logo</div>
+        <br>
+        <input type="file" id="company-logo" accept="image/*">
+        <p><small>Testez l'upload d'un fichier image pour vérifier le fonctionnement</small></p>
+    </div>
+    
+    <div id="test-summary"></div>
+    <div id="test-results"></div>
+    
+    <script src="js/models/state.js"></script>
+    <script src="js/managers/InvoiceManager.js"></script>
+    <script src="tests/simple-test-framework.js"></script>
+    
+    <script>
+        // Tests pour l'upload de logo
+        
+        // Mock d'un fichier image valide
+        function createMockImageFile(name = 'test.jpg', type = 'image/jpeg', size = 1024) {
+            const content = 'fake-image-content';
+            const blob = new Blob([content], { type });
+            const file = new File([blob], name, { type, lastModified: Date.now() });
+            Object.defineProperty(file, 'size', { value: size });
+            return file;
+        }
+        
+        // Mock d'un fichier invalide
+        function createMockInvalidFile(name = 'test.txt', type = 'text/plain', size = 1024) {
+            const content = 'fake-text-content';
+            const blob = new Blob([content], { type });
+            const file = new File([blob], name, { type, lastModified: Date.now() });
+            Object.defineProperty(file, 'size', { value: size });
+            return file;
+        }
+        
+        // Test de validation des fichiers
+        testFramework.test('InvoiceManager - Validation fichier image valide', () => {
+            const manager = new InvoiceManager();
+            const validFile = createMockImageFile('logo.jpg', 'image/jpeg', 1024);
+            
+            const isValid = manager.validateLogoFile(validFile);
+            testFramework.assert(isValid, 'Un fichier image valide devrait être accepté');
+        });
+        
+        testFramework.test('InvoiceManager - Validation fichier invalide (type)', () => {
+            const manager = new InvoiceManager();
+            const invalidFile = createMockInvalidFile('document.txt', 'text/plain', 1024);
+            
+            const isValid = manager.validateLogoFile(invalidFile);
+            testFramework.assert(!isValid, 'Un fichier non-image devrait être rejeté');
+        });
+        
+        testFramework.test('InvoiceManager - Validation fichier trop volumineux', () => {
+            const manager = new InvoiceManager();
+            const largeFile = createMockImageFile('large.jpg', 'image/jpeg', 6 * 1024 * 1024); // 6MB
+            
+            const isValid = manager.validateLogoFile(largeFile);
+            testFramework.assert(!isValid, 'Un fichier trop volumineux devrait être rejeté');
+        });
+        
+        testFramework.test('InvoiceManager - Validation fichier null', () => {
+            const manager = new InvoiceManager();
+            
+            const isValid = manager.validateLogoFile(null);
+            testFramework.assert(!isValid, 'Un fichier null devrait être rejeté');
+        });
+        
+        testFramework.test('InvoiceManager - Types MIME supportés', () => {
+            const manager = new InvoiceManager();
+            const supportedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+            
+            supportedTypes.forEach(type => {
+                const file = createMockImageFile(`test.${type.split('/')[1]}`, type, 1024);
+                const isValid = manager.validateLogoFile(file);
+                testFramework.assert(isValid, `Le type ${type} devrait être supporté`);
+            });
+        });
+        
+        testFramework.test('InvoiceManager - Suppression du logo', () => {
+            const manager = new InvoiceManager();
+            
+            // Simuler un logo existant
+            updateState('invoice.company.logo', {
+                dataUrl: 'data:image/jpeg;base64,fake',
+                name: 'test.jpg'
+            });
+            
+            // Supprimer le logo
+            manager.removeLogo();
+            
+            // Vérifier que le logo a été supprimé
+            const currentLogo = manager.getCurrentLogo();
+            testFramework.assert(currentLogo === null, 'Le logo devrait être supprimé');
+        });
+        
+        testFramework.test('InvoiceManager - Obtenir logo actuel', () => {
+            const manager = new InvoiceManager();
+            
+            // Aucun logo initialement
+            let currentLogo = manager.getCurrentLogo();
+            testFramework.assert(currentLogo === null, 'Aucun logo ne devrait être présent initialement');
+            
+            // Ajouter un logo
+            const logoData = {
+                dataUrl: 'data:image/jpeg;base64,fake',
+                name: 'test.jpg'
+            };
+            updateState('invoice.company.logo', logoData);
+            
+            // Vérifier que le logo est récupéré
+            currentLogo = manager.getCurrentLogo();
+            testFramework.assert(currentLogo !== null, 'Le logo devrait être présent');
+            testFramework.assertEqual(currentLogo.name, 'test.jpg', 'Le nom du logo devrait correspondre');
+        });
+        
+        // Configuration de l'interface de test
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialiser l'état
+            if (typeof getState === 'function') {
+                // L'état est déjà initialisé
+            }
+            
+            // Configurer l'upload de logo pour les tests manuels
+            const logoInput = document.getElementById('company-logo');
+            const logoDisplay = document.getElementById('company-logo-display');
+            
+            if (logoInput && logoDisplay) {
+                const manager = new InvoiceManager();
+                
+                logoInput.addEventListener('change', async (event) => {
+                    const file = event.target.files[0];
+                    
+                    if (!file) {
+                        manager.removeLogo();
+                        return;
+                    }
+                    
+                    logoDisplay.classList.add('loading');
+                    logoDisplay.textContent = 'Chargement...';
+                    
+                    try {
+                        const success = await manager.uploadLogo(file);
+                        
+                        if (success) {
+                            logoDisplay.classList.remove('loading');
+                            logoDisplay.classList.add('has-logo');
+                            logoDisplay.textContent = '';
+                            console.log('Logo uploadé avec succès');
+                        } else {
+                            logoDisplay.classList.remove('loading', 'has-logo');
+                            logoDisplay.textContent = 'Erreur';
+                            alert('Erreur lors de l\'upload du logo');
+                        }
+                    } catch (error) {
+                        logoDisplay.classList.remove('loading', 'has-logo');
+                        logoDisplay.textContent = 'Erreur';
+                        alert('Erreur: ' + error.message);
+                    }
+                });
+                
+                logoDisplay.addEventListener('click', () => {
+                    logoInput.click();
+                });
+            }
+            
+            // Exécuter les tests automatiques
+            testFramework.runAll();
+        });
+    </script>
+</body>
+</html>
