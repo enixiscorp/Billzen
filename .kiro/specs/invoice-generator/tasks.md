@@ -144,7 +144,7 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
     - **Propriété 4: Upload de logo valide**
     - **Valide: Exigences 2.2**
 
-- [-] 10. Point de contrôle - Interface utilisateur complète
+- [x] 10. Point de contrôle - Interface utilisateur complète
   - S'assurer que toute l'interface fonctionne, demander à l'utilisateur si des questions se posent.
 
 - [ ] 11. Implémentation de la réactivité et performance
