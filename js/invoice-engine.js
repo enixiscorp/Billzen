@@ -7,6 +7,7 @@
 let invoiceManager;
 let themeManager;
 let currencyManager;
+let reactiveSystem;
 
 /**
  * Initialise l'application
@@ -17,6 +18,9 @@ function initializeApp() {
         invoiceManager = new InvoiceManager();
         themeManager = new ThemeManager();
         currencyManager = new CurrencyManager();
+        
+        // Initialisation du système réactif
+        reactiveSystem = new ReactiveSystem();
         
         // Configuration initiale
         setupInitialState();

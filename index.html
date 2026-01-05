@@ -79,19 +79,19 @@
                         <div class="invoice-totals">
                             <div class="totals-row">
                                 <span>Sous-total HT:</span>
-                                <span id="subtotal-ht-display">0,00 €</span>
+                                <span id="subtotal-ht">0,00 €</span>
                             </div>
                             <div class="totals-row">
                                 <span>Total remises:</span>
-                                <span id="total-discount-display">0,00 €</span>
+                                <span id="total-discount">0,00 €</span>
                             </div>
                             <div class="totals-row">
                                 <span>Total TVA:</span>
-                                <span id="total-vat-display">0,00 €</span>
+                                <span id="total-vat">0,00 €</span>
                             </div>
                             <div class="totals-row total-final">
                                 <span>Total TTC:</span>
-                                <span id="total-ttc-display">0,00 €</span>
+                                <span id="total-ttc">0,00 €</span>
                             </div>
                         </div>
                     </div>
@@ -167,6 +167,10 @@
                                 <input type="number" id="item-vat" class="input" min="0" max="50" step="0.01" value="20">
                             </div>
                         </div>
+                        <div class="preview-total">
+                            <span>Total prévisualisation: </span>
+                            <span id="item-preview-total" class="preview-amount">0,00 €</span>
+                        </div>
                         <button type="button" id="add-item" class="btn btn-primary">Ajouter Article</button>
                     </div>
 
@@ -185,6 +189,10 @@
                                 <label for="hourly-rate">Taux horaire *</label>
                                 <input type="number" id="hourly-rate" class="input" min="1" step="0.01" required>
                             </div>
+                        </div>
+                        <div class="preview-total">
+                            <span>Total prévisualisation: </span>
+                            <span id="hourly-preview-total" class="preview-amount">0,00 €</span>
                         </div>
                         <button type="button" id="add-hourly-item" class="btn btn-primary">Ajouter Prestation</button>
                     </div>
@@ -386,6 +394,7 @@
     <script src="js/calculators/ItemCalculator.js"></script>
     <script src="js/calculators/HourlyCalculator.js"></script>
     <script src="js/calculators/TotalCalculator.js"></script>
+    <script src="js/reactive-system.js"></script>
     <script src="js/managers/InvoiceManager.js"></script>
     <script src="js/managers/ThemeManager.js"></script>
     <script src="js/managers/CurrencyManager.js"></script>

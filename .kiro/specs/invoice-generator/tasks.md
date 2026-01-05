@@ -147,13 +147,13 @@ Implémentation d'un générateur de factures professionnelles en JavaScript van
 - [x] 10. Point de contrôle - Interface utilisateur complète
   - S'assurer que toute l'interface fonctionne, demander à l'utilisateur si des questions se posent.
 
-- [ ] 11. Implémentation de la réactivité et performance
-  - [ ] 11.1 Créer le système de mise à jour en temps réel
+- [-] 11. Implémentation de la réactivité et performance
+  - [x] 11.1 Créer le système de mise à jour en temps réel
     - Implémenter les écouteurs d'événements pour les calculs automatiques
     - Optimiser les performances des calculs
     - _Exigences: 5.5, 9.1, 9.3_
 
-  - [ ] 11.2 Tests de propriété pour la réactivité des calculs
+  - [x] 11.2 Tests de propriété pour la réactivité des calculs
     - **Propriété 12: Réactivité des calculs**
     - **Valide: Exigences 5.5**
 

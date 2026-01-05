@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Propriété 22 - Performance des Calculs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-header {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+        .test-header h1 {
+            color: #1e293b;
+            margin: 0 0 8px 0;
+        }
+        .test-header p {
+            color: #64748b;
+            margin: 0;
+        }
+        .property-info {
+            background: #f1f5f9;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0 4px 4px 0;
+        }
+        .property-info h3 {
+            color: #d97706;
+            margin: 0 0 8px 0;
+        }
+        .property-info p {
+            color: #475569;
+            margin: 0;
+        }
+        .performance-requirement {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .performance-requirement strong {
+            color: #92400e;
+        }
+        #console {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .run-button {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .run-button:hover {
+            background: #d97706;
+        }
+        .run-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-top: 16px;
+            display: none;
+        }
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .performance-stats {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 12px 0;
+            font-family: monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Test de Propriété 22: Performance des Calculs</h1>
+            <p>Validation des performances selon l'exigence 9.1 - Calculs instantanés</p>
+        </div>
+        
+        <div class="property-info">
+            <h3>Propriété 22: Performance des calculs</h3>
+            <p><strong>Énoncé:</strong> Pour tout calcul effectué, le temps de traitement doit être inférieur à 100ms</p>
+            <p><strong>Valide:</strong> Exigences 9.1</p>
+            <p><strong>Framework:</strong> fast-check avec mesures de performance en temps réel</p>
+        </div>
+        
+        <div class="performance-requirement">
+            <strong>Exigence 9.1:</strong> LE Système DOIT effectuer tous les calculs instantanément (< 100ms)
+        </div>
+        
+        <button id="runTests" class="run-button">
+            Exécuter les Tests de Performance
+        </button>
+        
+        <div id="status" class="status"></div>
+        
+        <div id="console"></div>
+    </div>
+
+    <!-- Fast-check library -->
+    <script src="https://unpkg.com/fast-check@3.15.0/lib/bundle.js"></script>
+    
+    <!-- Application scripts -->
+    <script src="js/models/state.js"></script>
+    <script src="js/calculators/ItemCalculator.js"></script>
+    <script src="js/calculators/HourlyCalculator.js"></script>
+    <script src="js/calculators/TotalCalculator.js"></script>
+    
+    <!-- Test script -->
+    <script src="tests/performance.test.js"></script>
+    
+    <script>
+        // Rediriger console.log vers notre div
+        const consoleDiv = document.getElementById('console');
+        const statusDiv = document.getElementById('status');
+        const runButton = document.getElementById('runTests');
+        
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.join(' ');
+            
+            // Formater les statistiques de performance
+            if (message.includes('📊')) {
+                consoleDiv.innerHTML += '<div class="performance-stats">' + message + '</div>';
+            } else {
+                consoleDiv.textContent += message + '\n';
+            }
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            consoleDiv.textContent += 'ERROR: ' + args.join(' ') + '\n';
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        // Fonction pour exécuter les tests
+        async function runPerformanceTests() {
+            runButton.disabled = true;
+            runButton.innerHTML = '<span class="loading"></span>Mesure des performances...';
+            
+            consoleDiv.textContent = '';
+            consoleDiv.innerHTML = '';
+            statusDiv.style.display = 'none';
+            
+            try {
+                console.log('Démarrage des tests de performance des calculs...');
+                console.log('Mesure des temps d\'exécution avec performance.now()');
+                console.log('');
+                
+                const success = runPerformancePropertyTests();
+                
+                if (success) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Tous les tests de performance ont réussi - Exigence 9.1 respectée';
+                } else {
+                    statusDiv.className = 'status warning';
+                    statusDiv.textContent = '⚠️ Certains tests révèlent des problèmes de performance';
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors des tests de performance:', error);
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Erreur lors des tests: ' + error.message;
+            } finally {
+                statusDiv.style.display = 'block';
+                runButton.disabled = false;
+                runButton.innerHTML = 'Exécuter les Tests de Performance';
+            }
+        }
+        
+        // Event listener pour le bouton
+        runButton.addEventListener('click', runPerformanceTests);
+        
+        // Message initial
+        console.log('Tests de performance prêts. Cliquez sur le bouton pour commencer.');
+        console.log('');
+        console.log('Ces tests valident que:');
+        console.log('- Tous les calculs s\'exécutent en moins de 100ms (exigence 9.1)');
+        console.log('- Les performances restent acceptables sous charge');
+        console.log('- La réactivité est suffisante pour l\'interface utilisateur');
+        console.log('- Les calculs individuels sont optimisés');
+        console.log('');
+        console.log('⏱️ Les mesures utilisent performance.now() pour une précision maximale');
+    </script>
+</body>
+</html>
